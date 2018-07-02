@@ -5,13 +5,15 @@ homepage: https://github.com/tekartik/io_auth_utils.dart
 author: alex <alex@tekartik.com>
 
 environment:
-  sdk: '>=1.20.1 <2.0.0'
+  sdk: '>=1.24.3 <2.0.0'
 
 dependencies:
   googleapis_auth: any
   fs_shim: any
   tekartik_io_utils:
-    git: git://github.com/tekartik/io_utils.dart
+    git:
+      url: git://github.com/tekartik/io_utils.dart
+      ref: dart1
 
 dev_dependencies:
   test: ">=0.12.24"
