@@ -26,9 +26,7 @@ String _localPath = ".local";
 String accessCredentialsFilename = 'access_credentials.yaml';
 
 class AuthClientInfo {
-  AuthClientInfo(this.clientId, this.clientSecret) {
-    
-  }
+  AuthClientInfo(this.clientId, this.clientSecret) {}
   auth.ClientId get authClientId => new auth.ClientId(clientId, clientSecret);
   auth.AccessCredentials accessCredentials;
 
@@ -61,12 +59,11 @@ class AuthClientInfo {
     return map.toString();
   }
 
-
-  Future<http.Client> getClient(List<String> scopes, {String localDirPath, String packageName}) async {
+  Future<http.Client> getClient(List<String> scopes,
+      {String localDirPath, String packageName}) async {
     auth.ClientId identifier = authClientId;
 
-
-      /*
+    /*
       Map yaml = loadYaml(
           new File(join(localDirPath, credentialsFilename)).readAsStringSync());
       String clientId = yaml['id'];
@@ -86,58 +83,57 @@ class AuthClientInfo {
     }
     */
 
-
-      if (packageName != null) {
-        if (localDirPath == null) {
-          localDirPath = join(_localPath, packageName);
-        } else {
-          localDirPath = join(localDirPath, _localPath, packageName);
-        }
+    if (packageName != null) {
+      if (localDirPath == null) {
+        localDirPath = join(_localPath, packageName);
+      } else {
+        localDirPath = join(localDirPath, _localPath, packageName);
       }
+    }
 
-      localDirPath ??= _localPath;
+    localDirPath ??= _localPath;
 
-      String credentialsPath = join(localDirPath, accessCredentialsFilename);
+    String credentialsPath = join(localDirPath, accessCredentialsFilename);
 
-      auth.AccessCredentials accessCredentials;
-      try {
-        Map yaml = loadYaml(
-            new File(credentialsPath)
-                .readAsStringSync());
-        accessCredentials = new auth.AccessCredentials(
-            new auth.AccessToken(yaml['token_type'], yaml['token_data'],
-                DateTime.parse(yaml['token_expiry'])),
-            yaml['refresh_token'],
-            scopes);
-        // AccessToken(type=Bearer, data=ya29.vgHGwmpTG_9AW5p5lHlL9PaJcnFmqSaKaa5ymS8vOD3_BxOkWF8IB1OLqFyMLbWonRbY, expiry=2015-07-28 17:08:31.241Z)
-        // 1/Yc_wZlaDyKcMVXcYEE3-tzBVLBnLSsv_2ynfVzFO-59IgOrJDtdun6zK6XiATCKT
-        //print(accessCredentials.accessToken);
-        //print(accessCredentials.refreshToken);
-      } catch (e, st) {
-        stderr.writeln('Credential file not found');
-        stderr.writeln(st);
-        // exit(1);
-      }
+    auth.AccessCredentials accessCredentials;
+    try {
+      Map yaml = loadYaml(new File(credentialsPath).readAsStringSync());
+      accessCredentials = new auth.AccessCredentials(
+          new auth.AccessToken(
+              yaml['token_type'] as String,
+              yaml['token_data'] as String,
+              DateTime.parse(yaml['token_expiry'] as String)),
+          yaml['refresh_token'] as String,
+          scopes);
+      // AccessToken(type=Bearer, data=ya29.vgHGwmpTG_9AW5p5lHlL9PaJcnFmqSaKaa5ymS8vOD3_BxOkWF8IB1OLqFyMLbWonRbY, expiry=2015-07-28 17:08:31.241Z)
+      // 1/Yc_wZlaDyKcMVXcYEE3-tzBVLBnLSsv_2ynfVzFO-59IgOrJDtdun6zK6XiATCKT
+      //print(accessCredentials.accessToken);
+      //print(accessCredentials.refreshToken);
+    } catch (e, st) {
+      stderr.writeln('Credential file not found');
+      stderr.writeln(st);
+      // exit(1);
+    }
 
-      var client = new http.Client();
+    var client = new http.Client();
 
-      if (accessCredentials == null) {
-        accessCredentials = await auth.obtainAccessCredentialsViaUserConsent(
-            identifier, scopes, client, _userPrompt);
-        print(accessCredentials.accessToken);
-        print(accessCredentials.refreshToken);
-        //new File(join(localDirPath, accessCredentialsFilename))
+    if (accessCredentials == null) {
+      accessCredentials = await auth.obtainAccessCredentialsViaUserConsent(
+          identifier, scopes, client, _userPrompt);
+      print(accessCredentials.accessToken);
+      print(accessCredentials.refreshToken);
+      //new File(join(localDirPath, accessCredentialsFilename))
 //            .writeAsStringSync('''
-        await writeString(new File(join(credentialsPath)), '''
+      await writeString(new File(join(credentialsPath)), '''
 token_type: ${accessCredentials.accessToken.type}
 token_data: ${accessCredentials.accessToken.data}
 token_expiry: ${accessCredentials.accessToken.expiry}
 refresh_token: ${accessCredentials.refreshToken}
 ''');
-      }
+    }
 
-      //accessCredentials == await auth.obtainAccessCredentialsViaUserConsent(identifier, scopes, client, _userPrompt);
-      /*.catchError((error) {
+    //accessCredentials == await auth.obtainAccessCredentialsViaUserConsent(identifier, scopes, client, _userPrompt);
+    /*.catchError((error) {
       if (error is auth.UserConsentException) {
         print("You did not grant access :(");
       } else {
@@ -148,12 +144,10 @@ refresh_token: ${accessCredentials.refreshToken}
     });
     */
 
-      auth.AutoRefreshingAuthClient authClient =
-      auth.autoRefreshingClient(identifier, accessCredentials, client);
-      return authClient;
-    }
-
-
+    auth.AutoRefreshingAuthClient authClient =
+        auth.autoRefreshingClient(identifier, accessCredentials, client);
+    return authClient;
+  }
 }
 
 /*

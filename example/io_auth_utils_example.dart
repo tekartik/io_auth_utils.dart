@@ -10,20 +10,19 @@ import 'package:googleapis/plus/v1.dart';
 String testFolderPath = "test";
 String testDataFolderPath = join(testFolderPath, "data");
 
-
 main() async {
-  String path = join(testDataFolderPath,
-      "tmp", "client_secret_124267391961-qu3lag0eht68os2cfuj4khn4rb3i6k4g.apps.googleusercontent.com.json");
+  String path = join(testDataFolderPath, "tmp",
+      "client_secret_124267391961-qu3lag0eht68os2cfuj4khn4rb3i6k4g.apps.googleusercontent.com.json");
   if (await new File(path).exists()) {
-    AuthClientInfo authClientInfo = await AuthClientInfo.load(
-        filePath: path);
+    AuthClientInfo authClientInfo = await AuthClientInfo.load(filePath: path);
     print(authClientInfo);
     Client authClient = await authClientInfo.getClient([emailScope]);
     PlusApi plusApi = new PlusApi(authClient);
     Person person = await plusApi.people.get("me");
     print(person.toJson());
 
-    authClient = await authClientInfo.getClient([emailScope], packageName: "com.tekartik.io_auth_utils.dart");
+    authClient = await authClientInfo.getClient([emailScope],
+        packageName: "com.tekartik.io_auth_utils.dart");
     plusApi = new PlusApi(authClient);
     person = await plusApi.people.get("me");
     print(person.toJson());
