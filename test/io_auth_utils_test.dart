@@ -1,11 +1,14 @@
+import 'package:dev_test/test.dart';
+import 'package:path/path.dart';
 @TestOn("vm")
 // Copyright (c) 2017, alex. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
 import 'package:tekartik_io_auth_utils/io_auth_utils.dart';
-import 'package:path/path.dart';
-import 'package:dev_test/test.dart';
 import 'package:tekartik_io_utils/io_utils_import.dart';
+
+// Copyright (c) 2017, alex. All rights reserved. Use of this source code
+// is governed by a BSD-style license that can be found in the LICENSE file.
 
 String testFolderPath = "test";
 String testDataFolderPath = join(testFolderPath, "data");
@@ -44,7 +47,7 @@ void main() {
     test('tmp_only', () async {
       String path = join(testDataFolderPath,
           "tmp/client_secret_124267391961-qu3lag0eht68os2cfuj4khn4rb3i6k4g.apps.googleusercontent.com.json");
-      if (await new File(path).exists()) {
+      if (File(path).existsSync()) {
         AuthClientInfo authClientInfo =
             await AuthClientInfo.load(filePath: path);
         print(authClientInfo.clientSecret);
