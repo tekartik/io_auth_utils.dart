@@ -9,15 +9,15 @@ library io_auth_utils;
 // TODO: Export any libraries intended for clients of this package.
 
 import 'dart:async';
-
-import 'package:tekartik_common_utils/json_utils.dart';
-import 'package:fs_shim/utils/io/read_write.dart';
-import 'package:googleapis_auth/auth_io.dart' as auth;
-import 'package:googleapis_auth/auth.dart' as auth;
 import 'dart:io';
-import 'package:yaml/yaml.dart';
-import 'package:path/path.dart';
+
+import 'package:fs_shim/utils/io/read_write.dart';
+import 'package:googleapis_auth/auth.dart' as auth;
+import 'package:googleapis_auth/auth_io.dart' as auth;
 import "package:http/http.dart" as http;
+import 'package:path/path.dart';
+import 'package:tekartik_common_utils/json_utils.dart';
+import 'package:yaml/yaml.dart';
 
 String emailScope = "email";
 
@@ -26,8 +26,9 @@ String _localPath = ".local";
 String accessCredentialsFilename = 'access_credentials.yaml';
 
 class AuthClientInfo {
-  AuthClientInfo(this.clientId, this.clientSecret) {}
-  auth.ClientId get authClientId => new auth.ClientId(clientId, clientSecret);
+  AuthClientInfo(this.clientId, this.clientSecret);
+
+  auth.ClientId get authClientId => auth.ClientId(clientId, clientSecret);
   auth.AccessCredentials accessCredentials;
 
   String clientId;
@@ -37,14 +38,14 @@ class AuthClientInfo {
 
   static Future<AuthClientInfo> load({String filePath, Map map}) async {
     if (map == null) {
-      map = parseJsonObject(await new File(filePath).readAsString());
+      map = parseJsonObject(await File(filePath).readAsString());
     }
     if (map != null) {
-      Map installedMap = map['installed'];
-      String clientId = installedMap['client_id'];
-      String clientSecret = installedMap['client_secret'];
+      Map installedMap = map['installed'] as Map;
+      String clientId = installedMap['client_id'] as String;
+      String clientSecret = installedMap['client_secret'] as String;
       if (clientId != null && clientSecret != null) {
-        return new AuthClientInfo(clientId, clientSecret);
+        return AuthClientInfo(clientId, clientSecret);
       } else {
         stderr.writeln("invalid map: ${map}");
         //return new AuthClientInfo(map, clientSecret)
@@ -54,7 +55,7 @@ class AuthClientInfo {
   }
 
   @override
-  toString() {
+  String toString() {
     Map map = {"clientId": clientId, "clientSecret": clientSecret};
     return map.toString();
   }
@@ -97,9 +98,9 @@ class AuthClientInfo {
 
     auth.AccessCredentials accessCredentials;
     try {
-      Map yaml = loadYaml(new File(credentialsPath).readAsStringSync());
-      accessCredentials = new auth.AccessCredentials(
-          new auth.AccessToken(
+      Map yaml = loadYaml(File(credentialsPath).readAsStringSync()) as Map;
+      accessCredentials = auth.AccessCredentials(
+          auth.AccessToken(
               yaml['token_type'] as String,
               yaml['token_data'] as String,
               DateTime.parse(yaml['token_expiry'] as String)),
@@ -115,7 +116,7 @@ class AuthClientInfo {
       // exit(1);
     }
 
-    var client = new http.Client();
+    var client = http.Client();
 
     if (accessCredentials == null) {
       accessCredentials = await auth.obtainAccessCredentialsViaUserConsent(
@@ -124,7 +125,7 @@ class AuthClientInfo {
       print(accessCredentials.refreshToken);
       //new File(join(localDirPath, accessCredentialsFilename))
 //            .writeAsStringSync('''
-      await writeString(new File(join(credentialsPath)), '''
+      await writeString(File(join(credentialsPath)), '''
 token_type: ${accessCredentials.accessToken.type}
 token_data: ${accessCredentials.accessToken.data}
 token_expiry: ${accessCredentials.accessToken.expiry}
