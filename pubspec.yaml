@@ -14,7 +14,7 @@ dependencies:
     git:
       url: git://github.com/tekartik/io_utils.dart
       ref: dart2
-
+    version: '>=0.5.1'
 dev_dependencies:
   test: ">=1.0.0"
   dev_test: any
