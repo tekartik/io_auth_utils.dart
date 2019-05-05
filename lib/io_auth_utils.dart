@@ -20,6 +20,8 @@ import 'package:tekartik_common_utils/json_utils.dart';
 import 'package:yaml/yaml.dart';
 
 String emailScope = "email";
+String userInfoProfileScope =
+    "https://www.googleapis.com/auth/userinfo.profile";
 
 String _localPath = ".local";
 //String credentialsFilename = 'client_id.yaml';
