@@ -2,6 +2,10 @@ language: dart
 sudo: false
 dart:
   - stable
+  - beta
   - dev
 script:
-  - tool/travis.sh
+  - dart tool/travis.dart
+cache:
+  directories:
+    - $HOME/.pub-cache

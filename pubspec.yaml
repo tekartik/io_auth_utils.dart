@@ -1,11 +1,11 @@
 name: tekartik_io_auth_utils
 description: helper for google auth for io app
-version: 0.2.0
+version: 0.2.2
 homepage: https://github.com/tekartik/io_auth_utils.dart
 author: alex <alex@tekartik.com>
 
 environment:
-  sdk: '>=2.0.0-dev.63 <3.0.0'
+  sdk: '>=2.10.0-0 <3.0.0'
 
 dependencies:
   googleapis_auth: any
@@ -14,8 +14,9 @@ dependencies:
     git:
       url: git://github.com/tekartik/io_utils.dart
       ref: dart2
-    version: '>=0.5.1'
+    version: '>=0.5.1+1'
 dev_dependencies:
   test: ">=1.0.0"
-  dev_test: any
+  dev_test: '>=0.13.3+12'
   googleapis: any
+  process_run: '>=0.10.0+1'
