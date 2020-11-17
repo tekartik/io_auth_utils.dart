@@ -16,7 +16,7 @@ import 'package:googleapis_auth/auth.dart' as auth;
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
-import 'package:tekartik_common_utils/json_utils.dart';
+import 'package:tekartik_io_utils/io_utils_import.dart';
 import 'package:yaml/yaml.dart';
 
 String emailScope = 'email';
@@ -27,6 +27,32 @@ String _localPath = '.local';
 //String credentialsFilename = 'client_id.yaml';
 String accessCredentialsFilename = 'access_credentials.yaml';
 
+/// Load credentials from file system using default location (.local/client_id.yaml)
+///
+/// Content with the following form:
+/// ```
+/// # Get the data from google cloud console, new Client ID for Desktop application
+/// client_id: 2**************************6.apps.googleusercontent.com
+/// client_secret: v************g
+/// ```
+Future<http.Client> initAuthClient({@required List<String> scopes}) async {
+  var dir = '.local';
+  final path = join(dir, 'client_id.yaml');
+  if (File(path).existsSync()) {
+    final authClientInfo = await AuthClientInfo.load(filePath: path);
+    print(authClientInfo);
+    final authClient =
+        await authClientInfo.getClient(scopes, localDirPath: dir);
+    return authClient;
+  } else {
+    await Directory(dir).create(recursive: true);
+    stderr.write(
+        "need secret file here: ${path} to download from <https://console.cloud.google.com/apis/credentials> section 'OAuth 2.0 client IDs");
+    throw StateError('no client id');
+  }
+}
+
+/// Helper to load save credentials
 class AuthClientInfo {
   AuthClientInfo(this.clientId, this.clientSecret);
 
@@ -39,11 +65,11 @@ class AuthClientInfo {
   String credentialsPath;
 
   static Future<AuthClientInfo> load({String filePath, Map map}) async {
-    map ??= parseJsonObject(await File(filePath).readAsString());
+    map ??= loadYaml(await File(filePath).readAsString()) as Map;
     if (map != null) {
-      final installedMap = map['installed'] as Map;
-      final clientId = installedMap['client_id'] as String;
-      final clientSecret = installedMap['client_secret'] as String;
+      //final installedMap = map['installed'] as Map;
+      final clientId = map['client_id'] as String;
+      final clientSecret = map['client_secret'] as String;
       if (clientId != null && clientSecret != null) {
         return AuthClientInfo(clientId, clientSecret);
       } else {

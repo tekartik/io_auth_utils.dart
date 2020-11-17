@@ -28,18 +28,33 @@ void main() {
       //print(authClientInfo.clientSecret);
     });
 
+    test('google_content', () async {
+      final path = join('.local', 'client_id.example.yaml');
+      var client = await AuthClientInfo.load(filePath: path);
+      expect(client.clientId, contains('*****'));
+      expect(client.clientSecret, contains('*****'));
+    });
+
     test('bad_content', () async {
       final path = join(testDataFolderPath, 'bad_content.json');
-      final authClientInfo = await AuthClientInfo.load(filePath: path);
-      expect(authClientInfo, isNull);
+      try {
+        await AuthClientInfo.load(filePath: path);
+        fail('should fail');
+      } catch (e) {
+        expect(e, isNot(const TypeMatcher<TestFailure>()));
+      }
 
       //print(authClientInfo.clientSecret);
     });
 
     test('not_json_content', () async {
       final path = join(testDataFolderPath, 'basic_content.txt');
-      final authClientInfo = await AuthClientInfo.load(filePath: path);
-      expect(authClientInfo, isNull);
+      try {
+        await AuthClientInfo.load(filePath: path);
+        fail('should fail');
+      } catch (e) {
+        expect(e, isNot(const TypeMatcher<TestFailure>()));
+      }
 
       //print(authClientInfo.clientSecret);
     });

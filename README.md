@@ -1,19 +1,20 @@
 # io_auth_utils
 
-A library for Dart developers. It is awesome.
+Io auth helper for google apis.
 
 ## Usage
 
-A simple usage example:
+In your `pubspec.yaml`:
 
-    import 'package:io_auth_utils/io_auth_utils.dart';
+```yaml
+dependencies:
+  tekartik_io_auth_utils:
+    git:
+      url: git://github.com/tekartik/io_auth_utils.dart
+      ref: dart2
+    version: '>=0.3.0'
+```
 
-    main() {
-      var awesome = new Awesome();
-    }
+## Helpers
 
-## Features and bugs
-
-Please file feature requests and bugs at the [issue tracker][tracker].
-
-[tracker]: http://example.com/issues/replaceme
+* Load io AuthClient from clientId/secret with console login using links
