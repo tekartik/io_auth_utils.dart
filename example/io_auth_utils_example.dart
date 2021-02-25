@@ -1,3 +1,4 @@
+// @dart=2.9
 // Copyright (c) 2017, alex. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
@@ -11,8 +12,8 @@ String testDataFolderPath = join(testFolderPath, 'data');
 
 Future main() async {
   var authClient = await initAuthClient(
-      scopes: [userInfoProfileScope, PeopleApi.ContactsScope]);
-  var peopleApi = PeopleApi(authClient);
+      scopes: [userInfoProfileScope, PeopleServiceApi.contactsScope]);
+  var peopleApi = PeopleServiceApi(authClient);
 
   // Get me special!
   final person = await peopleApi.people.get('people/me', personFields: 'names');

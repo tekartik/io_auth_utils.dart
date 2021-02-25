@@ -35,11 +35,12 @@ String accessCredentialsFilename = 'access_credentials.yaml';
 /// client_id: 2**************************6.apps.googleusercontent.com
 /// client_secret: v************g
 /// ```
-Future<http.Client> initAuthClient({@required List<String> scopes}) async {
+Future<http.Client> initAuthClient({required List<String> scopes}) async {
   var dir = '.local';
   final path = join(dir, 'client_id.yaml');
   if (File(path).existsSync()) {
-    final authClientInfo = await AuthClientInfo.load(filePath: path);
+    final authClientInfo =
+        await (AuthClientInfo.load(filePath: path) as FutureOr<AuthClientInfo>);
     print(authClientInfo);
     final authClient =
         await authClientInfo.getClient(scopes, localDirPath: dir);
@@ -57,19 +58,20 @@ class AuthClientInfo {
   AuthClientInfo(this.clientId, this.clientSecret);
 
   auth.ClientId get authClientId => auth.ClientId(clientId, clientSecret);
-  auth.AccessCredentials accessCredentials;
+  auth.AccessCredentials? accessCredentials;
 
   String clientId;
   String clientSecret;
 
-  String credentialsPath;
+  String? credentialsPath;
 
-  static Future<AuthClientInfo> load({String filePath, Map map}) async {
-    map ??= loadYaml(await File(filePath).readAsString()) as Map;
+  static Future<AuthClientInfo?> load(
+      {required String filePath, Map? map}) async {
+    map ??= loadYaml(await File(filePath).readAsString()) as Map?;
     if (map != null) {
       //final installedMap = map['installed'] as Map;
-      final clientId = map['client_id'] as String;
-      final clientSecret = map['client_secret'] as String;
+      final clientId = map['client_id'] as String?;
+      final clientSecret = map['client_secret'] as String?;
       if (clientId != null && clientSecret != null) {
         return AuthClientInfo(clientId, clientSecret);
       } else {
@@ -87,7 +89,7 @@ class AuthClientInfo {
   }
 
   Future<http.Client> getClient(List<String> scopes,
-      {String localDirPath, String packageName}) async {
+      {String? localDirPath, String? packageName}) async {
     final identifier = authClientId;
 
     /*
@@ -122,7 +124,7 @@ class AuthClientInfo {
 
     final credentialsPath = join(localDirPath, accessCredentialsFilename);
 
-    auth.AccessCredentials accessCredentials;
+    auth.AccessCredentials? accessCredentials;
     try {
       final yaml = loadYaml(File(credentialsPath).readAsStringSync()) as Map;
       accessCredentials = auth.AccessCredentials(
@@ -130,7 +132,7 @@ class AuthClientInfo {
               yaml['token_type'] as String,
               yaml['token_data'] as String,
               DateTime.parse(yaml['token_expiry'] as String)),
-          yaml['refresh_token'] as String,
+          yaml['refresh_token'] as String?,
           scopes);
       // AccessToken(type=Bearer, data=ya29.vgHGwmpTG_9AW5p5lHlL9PaJcnFmqSaKaa5ymS8vOD3_BxOkWF8IB1OLqFyMLbWonRbY, expiry=2015-07-28 17:08:31.241Z)
       // 1/Yc_wZlaDyKcMVXcYEE3-tzBVLBnLSsv_2ynfVzFO-59IgOrJDtdun6zK6XiATCKT

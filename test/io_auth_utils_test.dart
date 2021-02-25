@@ -30,7 +30,7 @@ void main() {
 
     test('google_content', () async {
       final path = join('.local', 'client_id.example.yaml');
-      var client = await AuthClientInfo.load(filePath: path);
+      var client = (await AuthClientInfo.load(filePath: path))!;
       expect(client.clientId, contains('*****'));
       expect(client.clientSecret, contains('*****'));
     });
@@ -63,7 +63,8 @@ void main() {
       final path = join(testDataFolderPath,
           'tmp/client_secret_124267391961-qu3lag0eht68os2cfuj4khn4rb3i6k4g.apps.googleusercontent.com.json');
       if (File(path).existsSync()) {
-        final authClientInfo = await AuthClientInfo.load(filePath: path);
+        final authClientInfo = await (AuthClientInfo.load(filePath: path)
+            as FutureOr<AuthClientInfo>);
         print(authClientInfo.clientSecret);
       }
     });
