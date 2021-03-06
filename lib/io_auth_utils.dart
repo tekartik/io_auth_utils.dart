@@ -47,7 +47,7 @@ Future<http.Client> initAuthClient({@required List<String> scopes}) async {
   } else {
     await Directory(dir).create(recursive: true);
     stderr.write(
-        "need secret file here: ${path} to download from <https://console.cloud.google.com/apis/credentials> section 'OAuth 2.0 client IDs");
+        "need secret file here: $path to download from <https://console.cloud.google.com/apis/credentials> section 'OAuth 2.0 client IDs");
     throw StateError('no client id');
   }
 }
@@ -73,7 +73,7 @@ class AuthClientInfo {
       if (clientId != null && clientSecret != null) {
         return AuthClientInfo(clientId, clientSecret);
       } else {
-        stderr.writeln('invalid map: ${map}');
+        stderr.writeln('invalid map: $map');
         //return new AuthClientInfo(map, clientSecret)
       }
     }
