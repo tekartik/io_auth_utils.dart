@@ -6,7 +6,7 @@ author: alex <alex@tekartik.com>
 publish_to: none
 
 environment:
-  sdk: '>=2.10.0-0 <3.0.0'
+  sdk: '>=2.12.0-0 <3.0.0'
 
 dependencies:
   googleapis_auth: any
@@ -14,8 +14,8 @@ dependencies:
   tekartik_io_utils:
     git:
       url: git://github.com/tekartik/io_utils.dart
-      ref: dart2
-    version: '>=0.5.1+1'
+      ref: null_safety
+    version: '>=0.7.0-0'
   yaml:
 dev_dependencies:
   test: ">=1.0.0"
