@@ -12,8 +12,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fs_shim/utils/io/read_write.dart';
-import 'package:googleapis_auth/googleapis_auth.dart' as auth;
 import 'package:googleapis_auth/auth_io.dart' as auth;
+import 'package:googleapis_auth/googleapis_auth.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:tekartik_io_utils/io_utils_import.dart';
