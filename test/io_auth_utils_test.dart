@@ -1,9 +1,6 @@
+@TestOn('vm')
 import 'package:dev_test/test.dart';
 import 'package:path/path.dart';
-@TestOn('vm')
-// Copyright (c) 2017, alex. All rights reserved. Use of this source code
-// is governed by a BSD-style license that can be found in the LICENSE file.
-
 import 'package:tekartik_io_auth_utils/io_auth_utils.dart';
 import 'package:tekartik_io_utils/io_utils_import.dart';
 
