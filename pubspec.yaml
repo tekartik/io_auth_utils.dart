@@ -17,6 +17,8 @@ dependencies:
       ref: dart2_3
     version: '>=0.7.0-0'
   yaml:
+  path:
+  http:
 dev_dependencies:
   test: ">=1.0.0"
   dev_test: '>=0.13.3+12'
