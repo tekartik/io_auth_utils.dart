@@ -35,8 +35,7 @@ Future<http.Client> initAuthClient({required List<String> scopes}) async {
   var dir = '.local';
   final path = join(dir, 'client_id.yaml');
   if (File(path).existsSync()) {
-    final authClientInfo =
-        await (AuthClientInfo.load(filePath: path) as FutureOr<AuthClientInfo>);
+    final authClientInfo = (await AuthClientInfo.load(filePath: path))!;
     print(authClientInfo);
     final authClient =
         await authClientInfo.getClient(scopes, localDirPath: dir);
