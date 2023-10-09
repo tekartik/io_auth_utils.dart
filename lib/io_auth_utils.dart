@@ -35,8 +35,7 @@ Future<http.Client> initAuthClient({required List<String> scopes}) async {
   var dir = '.local';
   final path = join(dir, 'client_id.yaml');
   if (File(path).existsSync()) {
-    final authClientInfo =
-        await (AuthClientInfo.load(filePath: path) as FutureOr<AuthClientInfo>);
+    final authClientInfo = (await AuthClientInfo.load(filePath: path))!;
     print(authClientInfo);
     final authClient =
         await authClientInfo.getClient(scopes, localDirPath: dir);
@@ -66,14 +65,41 @@ class AuthClientInfo {
     map ??= loadYaml(await File(filePath).readAsString()) as Map?;
     if (map != null) {
       //final installedMap = map['installed'] as Map;
-      final clientId = map['client_id'] as String?;
-      final clientSecret = map['client_secret'] as String?;
-      if (clientId != null && clientSecret != null) {
-        return AuthClientInfo(clientId, clientSecret);
+      // Handle this format:
+      // # Get the data from google cloud console, new Client ID for Desktop application
+      // client_id: 2**************************6.apps.googleusercontent.com
+      // client_secret: v************g
+      var clientId = map['client_id'] as String?;
+      String? clientSecret;
+      if (clientId != null) {
+        clientSecret = map['client_secret'] as String?;
       } else {
-        stderr.writeln('invalid map: $map');
-        //return new AuthClientInfo(map, clientSecret)
+        // Handle this format:
+        // {
+        //   "installed": {
+        //     "client_id": "83xxxxxom",
+        //     "project_id": "soxxxxxo",
+        //     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        //     "token_uri": "https://oauth2.googleapis.com/token",
+        //     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        //     "client_secret": "GOxxxxxIi",
+        //     "redirect_uris": [
+        //       "http://localhost"
+        //     ]
+        //   }
+        // }
+        var installedMap = map['installed'] as Map?;
+        if (installedMap != null) {
+          clientId = installedMap['client_id'] as String?;
+          if (clientId != null) {
+            clientSecret = installedMap['client_secret'] as String?;
+          }
+        }
       }
+      if (clientSecret != null) {
+        return AuthClientInfo(clientId!, clientSecret);
+      }
+      stderr.writeln('invalid map: $map');
     }
     return null;
   }
@@ -121,23 +147,29 @@ class AuthClientInfo {
     final credentialsPath = join(localDirPath, accessCredentialsFilename);
 
     auth.AccessCredentials? accessCredentials;
-    try {
-      final yaml = loadYaml(File(credentialsPath).readAsStringSync()) as Map;
-      accessCredentials = auth.AccessCredentials(
-          auth.AccessToken(
-              yaml['token_type'] as String,
-              yaml['token_data'] as String,
-              DateTime.parse(yaml['token_expiry'] as String)),
-          yaml['refresh_token'] as String?,
-          scopes);
-      // AccessToken(type=Bearer, data=ya29.vgHGwmpTG_9AW5p5lHlL9PaJcnFmqSaKaa5ymS8vOD3_BxOkWF8IB1OLqFyMLbWonRbY, expiry=2015-07-28 17:08:31.241Z)
-      // 1/Yc_wZlaDyKcMVXcYEE3-tzBVLBnLSsv_2ynfVzFO-59IgOrJDtdun6zK6XiATCKT
-      //print(accessCredentials.accessToken);
-      //print(accessCredentials.refreshToken);
-    } catch (e, st) {
-      stderr.writeln('Credential file not found');
-      stderr.writeln(st);
-      // exit(1);
+
+    var file = File(credentialsPath);
+    if (!file.existsSync()) {
+      stderr.writeln('Credential file not found, logging in');
+    } else {
+      try {
+        final yaml = loadYaml(File(credentialsPath).readAsStringSync()) as Map;
+        accessCredentials = auth.AccessCredentials(
+            auth.AccessToken(
+                yaml['token_type'] as String,
+                yaml['token_data'] as String,
+                DateTime.parse(yaml['token_expiry'] as String)),
+            yaml['refresh_token'] as String?,
+            scopes);
+        // AccessToken(type=Bearer, data=ya29.vgHGwmpTG_9AW5p5lHlL9PaJcnFmqSaKaa5ymS8vOD3_BxOkWF8IB1OLqFyMLbWonRbY, expiry=2015-07-28 17:08:31.241Z)
+        // 1/Yc_wZlaDyKcMVXcYEE3-tzBVLBnLSsv_2ynfVzFO-59IgOrJDtdun6zK6XiATCKT
+        //print(accessCredentials.accessToken);
+        //print(accessCredentials.refreshToken);
+      } catch (e, st) {
+        stderr.writeln('error loading credentials, logging in');
+        stderr.writeln(st);
+        // exit(1);
+      }
     }
 
     var client = http.Client();

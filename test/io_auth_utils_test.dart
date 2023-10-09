@@ -60,8 +60,7 @@ void main() {
       final path = join(testDataFolderPath,
           'tmp/client_secret_124267391961-qu3lag0eht68os2cfuj4khn4rb3i6k4g.apps.googleusercontent.com.json');
       if (File(path).existsSync()) {
-        final authClientInfo = await (AuthClientInfo.load(filePath: path)
-            as FutureOr<AuthClientInfo>);
+        final authClientInfo = (await AuthClientInfo.load(filePath: path))!;
         print(authClientInfo.clientSecret);
       }
     });
