@@ -11,8 +11,19 @@ String testFolderPath = 'test';
 String testDataFolderPath = join(testFolderPath, 'data');
 
 Future main() async {
+  await runExample();
+}
+
+Future runExample(
+    {String? clientIdPath,
+    String? credentialsPath,
+    // overrides everything */
+    Map? clientIdMap}) async {
   var authClient = await initAuthClient(
-      scopes: [userInfoProfileScope, PeopleServiceApi.contactsScope]);
+      scopes: [userInfoProfileScope, PeopleServiceApi.contactsScope],
+      clientIdMap: clientIdMap,
+      clientIdPath: clientIdPath,
+      credentialsPath: credentialsPath);
   var peopleApi = PeopleServiceApi(authClient);
 
   var oauth2Api = Oauth2Api(authClient);
