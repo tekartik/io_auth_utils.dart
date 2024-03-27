@@ -78,9 +78,10 @@ class AuthClientInfoCommon {
           clientSecret = installedMap['client_secret'] as String?;
         }
       }
-      this.clientId = clientId!;
-      this.clientSecret = clientSecret!;
+
     }
+    this.clientId = clientId!;
+    this.clientSecret = clientSecret!;
   }
 
   auth.ClientId get authClientId => auth.ClientId(clientId, clientSecret);
