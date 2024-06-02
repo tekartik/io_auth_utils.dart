@@ -10,7 +10,8 @@ class AuthCommonParamMock implements AuthCommonParam {
   Future<Map> getClientIdMap() async {
     return <String, Object?>{
       'client_id': 'mock_client_id',
-      'client_secret': 'mock_client_secret'};
+      'client_secret': 'mock_client_secret'
+    };
   }
 
   @override
@@ -28,14 +29,13 @@ class AuthCommonParamMock implements AuthCommonParam {
   Future<void> setCredentialsMap(Map map) {
     throw UnimplementedError();
   }
-
 }
+
 void main() {
   group('io_auth_utils_common', () {
-
     test('load', () async {
-      var info = await AuthClientInfoCommon.load( param: AuthCommonParamMock());
+      var info = await AuthClientInfoCommon.load(param: AuthCommonParamMock());
       expect(info.clientId, 'mock_client_id');
-          });
+    });
   });
 }
