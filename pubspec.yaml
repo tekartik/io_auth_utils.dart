@@ -21,7 +21,7 @@ dependencies:
   http:
 dev_dependencies:
   test: ">=1.0.0"
-  dev_test: '>=0.13.3+12'
+  dev_build: '>=0.13.3+12'
   googleapis: any
   process_run: '>=0.10.0+1'
   tekartik_lints:
