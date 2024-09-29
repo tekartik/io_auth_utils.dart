@@ -4,7 +4,7 @@
 /// Support for doing something awesome.
 ///
 /// More dartdocs go here.
-library io_auth_utils;
+library;
 
 // TODO: Export any libraries intended for clients of this package.
 

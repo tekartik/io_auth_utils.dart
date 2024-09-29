@@ -4,7 +4,7 @@
 /// Support for doing something awesome.
 ///
 /// More dartdocs go here.
-library io_auth_utils;
+library;
 
 export 'src/io_auth_utils.dart' show initAuthClient;
 export 'src/io_auth_utils_compat.dart'
