@@ -20,7 +20,12 @@ Future runExample(
     // overrides everything */
     Map? clientIdMap}) async {
   var authClient = await initAuthClient(
-      scopes: [userInfoProfileScope, PeopleServiceApi.contactsScope],
+      scopes: [
+        userInfoProfileScope,
+        //PeopleServiceApi.contactsScope,
+        // Needed for email
+        PeopleServiceApi.contactsReadonlyScope
+      ],
       clientIdMap: clientIdMap,
       clientIdPath: clientIdPath,
       credentialsPath: credentialsPath);
@@ -34,4 +39,11 @@ Future runExample(
   // Get me special!
   final person = await peopleApi.people.get('people/me', personFields: 'names');
   print(jsonPretty(person.toJson()));
+
+  var connections = await peopleApi.people.connections.list(
+    'people/me',
+    personFields: 'emailAddresses',
+    pageSize: 10,
+  );
+  print(jsonPretty(connections.toJson()));
 }

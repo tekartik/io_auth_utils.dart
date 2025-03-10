@@ -25,11 +25,13 @@ Future<http.Client> initAuthClient(
     {required List<String> scopes,
     String? clientIdPath,
     Map? clientIdMap,
-    String? credentialsPath}) async {
+    String? credentialsPath,
+    bool? verbose}) async {
   return initAuthClientWithParam(
       scopes: scopes,
       param: AuthCommonParamFile(
           clientIdPath: clientIdPath,
           clientIdMap: clientIdMap,
-          credentialsPath: credentialsPath));
+          credentialsPath: credentialsPath),
+      verbose: verbose);
 }
