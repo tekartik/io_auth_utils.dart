@@ -10,7 +10,7 @@ class AuthCommonParamMock implements AuthCommonParam {
   Future<Map> getClientIdMap() async {
     return <String, Object?>{
       'client_id': 'mock_client_id',
-      'client_secret': 'mock_client_secret'
+      'client_secret': 'mock_client_secret',
     };
   }
 

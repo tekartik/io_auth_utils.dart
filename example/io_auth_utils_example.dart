@@ -14,21 +14,23 @@ Future main() async {
   await runExample();
 }
 
-Future runExample(
-    {String? clientIdPath,
-    String? credentialsPath,
-    // overrides everything */
-    Map? clientIdMap}) async {
+Future runExample({
+  String? clientIdPath,
+  String? credentialsPath,
+  // overrides everything */
+  Map? clientIdMap,
+}) async {
   var authClient = await initAuthClient(
-      scopes: [
-        userInfoProfileScope,
-        //PeopleServiceApi.contactsScope,
-        // Needed for email
-        PeopleServiceApi.contactsReadonlyScope
-      ],
-      clientIdMap: clientIdMap,
-      clientIdPath: clientIdPath,
-      credentialsPath: credentialsPath);
+    scopes: [
+      userInfoProfileScope,
+      //PeopleServiceApi.contactsScope,
+      // Needed for email
+      PeopleServiceApi.contactsReadonlyScope,
+    ],
+    clientIdMap: clientIdMap,
+    clientIdPath: clientIdPath,
+    credentialsPath: credentialsPath,
+  );
   var peopleApi = PeopleServiceApi(authClient);
 
   var oauth2Api = Oauth2Api(authClient);

@@ -21,17 +21,20 @@ import 'package:tekartik_io_utils/io_utils_import.dart';
 /// client_id: 2**************************6.apps.googleusercontent.com
 /// client_secret: v************g
 /// ```
-Future<http.Client> initAuthClient(
-    {required List<String> scopes,
-    String? clientIdPath,
-    Map? clientIdMap,
-    String? credentialsPath,
-    bool? verbose}) async {
+Future<http.Client> initAuthClient({
+  required List<String> scopes,
+  String? clientIdPath,
+  Map? clientIdMap,
+  String? credentialsPath,
+  bool? verbose,
+}) async {
   return initAuthClientWithParam(
-      scopes: scopes,
-      param: AuthCommonParamFile(
-          clientIdPath: clientIdPath,
-          clientIdMap: clientIdMap,
-          credentialsPath: credentialsPath),
-      verbose: verbose);
+    scopes: scopes,
+    param: AuthCommonParamFile(
+      clientIdPath: clientIdPath,
+      clientIdMap: clientIdMap,
+      credentialsPath: credentialsPath,
+    ),
+    verbose: verbose,
+  );
 }

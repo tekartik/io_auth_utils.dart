@@ -5,10 +5,11 @@ import 'package:yaml/yaml.dart';
 import 'io_auth_utils_memory.dart';
 
 class AuthCommonParamFile implements AuthCommonParam {
-  AuthCommonParamFile(
-      {this.clientIdMap,
-      required this.clientIdPath,
-      required this.credentialsPath});
+  AuthCommonParamFile({
+    this.clientIdMap,
+    required this.clientIdPath,
+    required this.credentialsPath,
+  });
 
   final String? clientIdPath;
   final String? credentialsPath;
@@ -23,7 +24,8 @@ class AuthCommonParamFile implements AuthCommonParam {
         clientIdMap = loadYaml(await File(clientIdPath).readAsString()) as Map?;
       } else {
         stderr.write(
-            "need secret file here: $clientIdPath to download from <https://console.cloud.google.com/apis/credentials> section 'OAuth 2.0 client IDs");
+          "need secret file here: $clientIdPath to download from <https://console.cloud.google.com/apis/credentials> section 'OAuth 2.0 client IDs",
+        );
         throw StateError('no client id');
       }
       if (clientIdMap == null) {

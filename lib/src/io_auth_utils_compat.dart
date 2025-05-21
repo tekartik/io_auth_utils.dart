@@ -36,8 +36,10 @@ class AuthClientInfo {
 
   String? credentialsPath;
 
-  static Future<AuthClientInfo?> load(
-      {required String filePath, Map? map}) async {
+  static Future<AuthClientInfo?> load({
+    required String filePath,
+    Map? map,
+  }) async {
     map ??= loadYaml(await File(filePath).readAsString()) as Map?;
     if (map != null) {
       //final installedMap = map['installed'] as Map;
@@ -86,10 +88,12 @@ class AuthClientInfo {
     return map.toString();
   }
 
-  Future<http.Client> getClient(List<String> scopes,
-      {String? localDirPath,
-      String? packageName,
-      String? credentialsPath}) async {
+  Future<http.Client> getClient(
+    List<String> scopes, {
+    String? localDirPath,
+    String? packageName,
+    String? credentialsPath,
+  }) async {
     final identifier = authClientId;
 
     if (credentialsPath == null) {
@@ -115,12 +119,14 @@ class AuthClientInfo {
       try {
         final yaml = loadYaml(File(credentialsPath).readAsStringSync()) as Map;
         accessCredentials = auth.AccessCredentials(
-            auth.AccessToken(
-                yaml['token_type'] as String,
-                yaml['token_data'] as String,
-                DateTime.parse(yaml['token_expiry'] as String)),
-            yaml['refresh_token'] as String?,
-            scopes);
+          auth.AccessToken(
+            yaml['token_type'] as String,
+            yaml['token_data'] as String,
+            DateTime.parse(yaml['token_expiry'] as String),
+          ),
+          yaml['refresh_token'] as String?,
+          scopes,
+        );
         // AccessToken(type=Bearer, data=ya29.vgHGwmpTG_9AW5p5lHlL9PaJcnFmqSaKaa5ymS8vOD3_BxOkWF8IB1OLqFyMLbWonRbY, expiry=2015-07-28 17:08:31.241Z)
         // 1/Yc_wZlaDyKcMVXcYEE3-tzBVLBnLSsv_2ynfVzFO-59IgOrJDtdun6zK6XiATCKT
         //print(accessCredentials.accessToken);
@@ -136,11 +142,15 @@ class AuthClientInfo {
 
     if (accessCredentials == null) {
       accessCredentials = await auth.obtainAccessCredentialsViaUserConsent(
-          identifier, scopes, client, ioPromptUser);
+        identifier,
+        scopes,
+        client,
+        ioPromptUser,
+      );
       print(accessCredentials.accessToken);
       print(accessCredentials.refreshToken);
       //new File(join(localDirPath, accessCredentialsFilename))
-//            .writeAsStringSync('''
+      //            .writeAsStringSync('''
       await writeString(File(join(credentialsPath)), '''
 token_type: ${accessCredentials.accessToken.type}
 token_data: ${accessCredentials.accessToken.data}
@@ -149,8 +159,11 @@ refresh_token: ${accessCredentials.refreshToken}
 ''');
     }
 
-    final authClient =
-        auth.autoRefreshingClient(identifier, accessCredentials, client);
+    final authClient = auth.autoRefreshingClient(
+      identifier,
+      accessCredentials,
+      client,
+    );
     return authClient;
   }
 }

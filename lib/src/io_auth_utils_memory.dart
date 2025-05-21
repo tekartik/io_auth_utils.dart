@@ -34,10 +34,11 @@ abstract class AuthCommonParam {
 /// client_id: 2**************************6.apps.googleusercontent.com
 /// client_secret: v************g
 /// ```
-Future<http.Client> initAuthClientWithParam(
-    {required List<String> scopes,
-    required AuthCommonParam param,
-    bool? verbose}) async {
+Future<http.Client> initAuthClientWithParam({
+  required List<String> scopes,
+  required AuthCommonParam param,
+  bool? verbose,
+}) async {
   final authClientInfo = (await AuthClientInfoCommon.load(param: param));
   print(authClientInfo);
   final authClient = await authClientInfo.getClient(scopes);
@@ -94,8 +95,9 @@ class AuthClientInfoCommon {
 
   String? credentialsPath;
 
-  static Future<AuthClientInfoCommon> load(
-      {required AuthCommonParam param}) async {
+  static Future<AuthClientInfoCommon> load({
+    required AuthCommonParam param,
+  }) async {
     var map = await param.getClientIdMap();
     return AuthClientInfoCommon(map: map, param: param);
   }
@@ -118,12 +120,14 @@ class AuthClientInfoCommon {
         var newScopes = scopes.toSet();
         if (const SetEquality<Object?>().equals(existingScopes, newScopes)) {
           accessCredentials = auth.AccessCredentials(
-              auth.AccessToken(
-                  yaml['token_type'] as String,
-                  yaml['token_data'] as String,
-                  DateTime.parse(yaml['token_expiry'] as String)),
-              yaml['refresh_token'] as String?,
-              scopes);
+            auth.AccessToken(
+              yaml['token_type'] as String,
+              yaml['token_data'] as String,
+              DateTime.parse(yaml['token_expiry'] as String),
+            ),
+            yaml['refresh_token'] as String?,
+            scopes,
+          );
         } else {
           stderr.writeln('scopes do not match');
           stderr.writeln('existing: $existingScopes');
@@ -144,8 +148,11 @@ class AuthClientInfoCommon {
     var client = http.Client();
 
     if (accessCredentials != null && scopes.contains(userInfoProfileScope)) {
-      final authClient =
-          auth.autoRefreshingClient(identifier, accessCredentials, client);
+      final authClient = auth.autoRefreshingClient(
+        identifier,
+        accessCredentials,
+        client,
+      );
       try {
         // Get me special!
         var oauth2Api = Oauth2Api(authClient);
@@ -160,7 +167,8 @@ class AuthClientInfoCommon {
 
           if (content is Map && content['error'] == 'invalid_grant') {
             stderr.writeln(
-                'error getting user info: $e ${e.runtimeType} - resigning in');
+              'error getting user info: $e ${e.runtimeType} - resigning in',
+            );
             accessCredentials = null;
           }
         }
@@ -171,7 +179,11 @@ class AuthClientInfoCommon {
     }
     if (accessCredentials == null) {
       accessCredentials = await auth.obtainAccessCredentialsViaUserConsent(
-          identifier, scopes, client, param.promptUserConsent);
+        identifier,
+        scopes,
+        client,
+        param.promptUserConsent,
+      );
       print(accessCredentials.accessToken);
       print(accessCredentials.refreshToken);
       var map = {
@@ -179,13 +191,16 @@ class AuthClientInfoCommon {
         'token_data': accessCredentials.accessToken.data,
         'token_expiry': '${accessCredentials.accessToken.expiry}',
         'refresh_token': '${accessCredentials.refreshToken}',
-        'scopes': scopes
+        'scopes': scopes,
       };
       await param.setCredentialsMap(map);
     }
 
-    final authClient =
-        auth.autoRefreshingClient(identifier, accessCredentials, client);
+    final authClient = auth.autoRefreshingClient(
+      identifier,
+      accessCredentials,
+      client,
+    );
 
     return authClient;
   }
