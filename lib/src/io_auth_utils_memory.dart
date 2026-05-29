@@ -40,7 +40,7 @@ Future<http.Client> initAuthClientWithParam({
   bool? verbose,
 }) async {
   final authClientInfo = (await AuthClientInfoCommon.load(param: param));
-  print(authClientInfo);
+  // print(authClientInfo);
   final authClient = await authClientInfo.getClient(scopes);
   return authClient;
 }
@@ -158,10 +158,12 @@ class AuthClientInfoCommon {
         var oauth2Api = Oauth2Api(authClient);
         // Get me special!
         final userInfo = await oauth2Api.userinfo.get();
+        // ignore: avoid_print
         print(jsonPretty(userInfo.toJson()));
         return authClient;
       } catch (e) {
         if (e is auth.ServerRequestFailedException) {
+          // ignore: avoid_print
           print(e.message);
           var content = e.responseContent;
 
@@ -172,8 +174,11 @@ class AuthClientInfoCommon {
             accessCredentials = null;
           }
         }
+
         if (accessCredentials != null) {
-          print('error getting user info: $e ${e.runtimeType} - trying anyway');
+          stderr.writeln(
+            'error getting user info: $e ${e.runtimeType} - trying anyway',
+          );
         }
       }
     }
@@ -184,8 +189,8 @@ class AuthClientInfoCommon {
         client,
         param.promptUserConsent,
       );
-      print(accessCredentials.accessToken);
-      print(accessCredentials.refreshToken);
+      // print(accessCredentials.accessToken);
+      // print(accessCredentials.refreshToken);
       var map = {
         'token_type': accessCredentials.accessToken.type,
         'token_data': accessCredentials.accessToken.data,

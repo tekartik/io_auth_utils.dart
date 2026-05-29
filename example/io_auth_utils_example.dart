@@ -36,16 +36,16 @@ Future runExample({
   var oauth2Api = Oauth2Api(authClient);
   // Get me special!
   final userInfo = await oauth2Api.userinfo.get();
-  print(jsonPretty(userInfo.toJson()));
+  stdout.writeln(jsonPretty(userInfo.toJson()));
 
   // Get me special!
   final person = await peopleApi.people.get('people/me', personFields: 'names');
-  print(jsonPretty(person.toJson()));
+  stdout.writeln(jsonPretty(person.toJson()));
 
   var connections = await peopleApi.people.connections.list(
     'people/me',
     personFields: 'emailAddresses',
     pageSize: 10,
   );
-  print(jsonPretty(connections.toJson()));
+  stdout.writeln(jsonPretty(connections.toJson()));
 }

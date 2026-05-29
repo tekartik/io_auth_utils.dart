@@ -65,7 +65,7 @@ class AuthCommonParamFile implements AuthCommonParam {
 }
 
 void ioPromptUser(String url) {
-  print('Please go to the following URL and grant access:');
-  print('  => $url');
-  print('');
+  stdout.writeln('Please go to the following URL and grant access:');
+  stdout.writeln('  => $url');
+  stdout.writeln('');
 }

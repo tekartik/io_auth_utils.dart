@@ -65,7 +65,7 @@ void main() {
       );
       if (File(path).existsSync()) {
         final authClientInfo = (await AuthClientInfo.load(filePath: path))!;
-        print(authClientInfo.clientSecret);
+        stdout.writeln(authClientInfo.clientSecret);
       }
     });
   });
