@@ -15,6 +15,7 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:tekartik_io_auth_utils/src/io_auth_utils_file.dart';
+import 'package:tekartik_io_auth_utils/src/io_auth_utils_parse.dart';
 import 'package:tekartik_io_utils/io_utils_import.dart';
 import 'package:yaml/yaml.dart';
 
@@ -44,51 +45,17 @@ class AuthClientInfo {
   }) async {
     map ??= loadYaml(await File(filePath).readAsString()) as Map?;
     if (map != null) {
-      //final installedMap = map['installed'] as Map;
-      // Handle this format:
-      // # Get the data from google cloud console, new Client ID for Desktop application
-      // client_id: 2**************************6.apps.googleusercontent.com
-      // client_secret: v************g
-      var clientId = map['client_id'] as String?;
-      String? clientSecret;
-      if (clientId != null) {
-        clientSecret = map['client_secret'] as String?;
-      } else {
-        // Handle this format:
-        // {
-        //   "installed": {
-        //     "client_id": "83xxxxxom",
-        //     "project_id": "soxxxxxo",
-        //     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        //     "token_uri": "https://oauth2.googleapis.com/token",
-        //     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        //     "client_secret": "GOxxxxxIi",
-        //     "redirect_uris": [
-        //       "http://localhost"
-        //     ]
-        //   }
-        // }
-        var installedMap = map['installed'] as Map?;
-        if (installedMap != null) {
-          clientId = installedMap['client_id'] as String?;
-          if (clientId != null) {
-            clientSecret = installedMap['client_secret'] as String?;
-          }
-        }
-      }
+      var (:clientId, :clientSecret) = parseClientIdMap(map);
       if (clientSecret != null) {
         return AuthClientInfo(clientId!, clientSecret);
       }
-      stderr.writeln('invalid map: $map');
+      stderr.writeln('invalid map, keys: ${map.keys}');
     }
     return null;
   }
 
   @override
-  String toString() {
-    final map = {'clientId': clientId, 'clientSecret': clientSecret};
-    return map.toString();
-  }
+  String toString() => clientIdInfoToString(clientId, clientSecret);
 
   Future<http.Client> getClient(
     List<String> scopes, {
@@ -120,14 +87,8 @@ class AuthClientInfo {
     } else {
       try {
         final yaml = loadYaml(File(credentialsPath).readAsStringSync()) as Map;
-        accessCredentials = auth.AccessCredentials(
-          auth.AccessToken(
-            yaml['token_type'] as String,
-            yaml['token_data'] as String,
-            DateTime.parse(yaml['token_expiry'] as String),
-          ),
-          yaml['refresh_token'] as String?,
-          scopes,
+        accessCredentials = usableAccessCredentials(
+          accessCredentialsFromMap(yaml, scopes),
         );
         // AccessToken(type=Bearer, data=ya29.vgHGwmpTG_9AW5p5lHlL9PaJcnFmqSaKaa5ymS8vOD3_BxOkWF8IB1OLqFyMLbWonRbY, expiry=2015-07-28 17:08:31.241Z)
         // 1/Yc_wZlaDyKcMVXcYEE3-tzBVLBnLSsv_2ynfVzFO-59IgOrJDtdun6zK6XiATCKT
@@ -149,8 +110,6 @@ class AuthClientInfo {
         client,
         ioPromptUser,
       );
-      print(accessCredentials.accessToken);
-      print(accessCredentials.refreshToken);
       //new File(join(localDirPath, accessCredentialsFilename))
       //            .writeAsStringSync('''
       await writeString(File(join(credentialsPath)), '''
@@ -161,7 +120,7 @@ refresh_token: ${accessCredentials.refreshToken}
 ''');
     }
 
-    final authClient = auth.autoRefreshingClient(
+    final authClient = authClientFromCredentials(
       identifier,
       accessCredentials,
       client,

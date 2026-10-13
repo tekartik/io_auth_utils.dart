@@ -13,6 +13,8 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:tekartik_io_utils/io_utils_import.dart';
 
+import 'io_auth_utils_parse.dart';
+
 String emailScope = 'email';
 String userInfoProfileScope =
     'https://www.googleapis.com/auth/userinfo.profile';
@@ -50,39 +52,7 @@ class AuthClientInfoCommon {
   final AuthCommonParam param;
   final Map map;
   AuthClientInfoCommon({required this.param, required this.map}) {
-    //final installedMap = map['installed'] as Map;
-    // Handle this format:
-    // # Get the data from google cloud console, new Client ID for Desktop application
-    // client_id: 2**************************6.apps.googleusercontent.com
-    // client_secret: v************g
-    String? clientId;
-    String? clientSecret;
-    clientId = map['client_id'] as String?;
-    if (clientId != null) {
-      clientSecret = map['client_secret'] as String?;
-    } else {
-      // Handle this format:
-      // {
-      //   "installed": {
-      //     "client_id": "83xxxxxom",
-      //     "project_id": "soxxxxxo",
-      //     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-      //     "token_uri": "https://oauth2.googleapis.com/token",
-      //     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-      //     "client_secret": "GOxxxxxIi",
-      //     "redirect_uris": [
-      //       "http://localhost"
-      //     ]
-      //   }
-      // }
-      var installedMap = map['installed'] as Map?;
-      if (installedMap != null) {
-        clientId = installedMap['client_id'] as String?;
-        if (clientId != null) {
-          clientSecret = installedMap['client_secret'] as String?;
-        }
-      }
-    }
+    var (:clientId, :clientSecret) = parseClientIdMap(map);
     this.clientId = clientId!;
     this.clientSecret = clientSecret!;
   }
@@ -103,10 +73,7 @@ class AuthClientInfoCommon {
   }
 
   @override
-  String toString() {
-    final map = {'clientId': clientId, 'clientSecret': clientSecret};
-    return map.toString();
-  }
+  String toString() => clientIdInfoToString(clientId, clientSecret);
 
   Future<http.Client> getClient(List<String> scopes) async {
     final identifier = authClientId;
@@ -119,14 +86,8 @@ class AuthClientInfoCommon {
         var existingScopes = (yaml['scopes'] as List?)?.toSet();
         var newScopes = scopes.toSet();
         if (const SetEquality<Object?>().equals(existingScopes, newScopes)) {
-          accessCredentials = auth.AccessCredentials(
-            auth.AccessToken(
-              yaml['token_type'] as String,
-              yaml['token_data'] as String,
-              DateTime.parse(yaml['token_expiry'] as String),
-            ),
-            yaml['refresh_token'] as String?,
-            scopes,
+          accessCredentials = usableAccessCredentials(
+            accessCredentialsFromMap(yaml, scopes),
           );
         } else {
           stderr.writeln('scopes do not match');
@@ -148,7 +109,7 @@ class AuthClientInfoCommon {
     var client = http.Client();
 
     if (accessCredentials != null && scopes.contains(userInfoProfileScope)) {
-      final authClient = auth.autoRefreshingClient(
+      final authClient = authClientFromCredentials(
         identifier,
         accessCredentials,
         client,
@@ -189,19 +150,12 @@ class AuthClientInfoCommon {
         client,
         param.promptUserConsent,
       );
-      // print(accessCredentials.accessToken);
-      // print(accessCredentials.refreshToken);
-      var map = {
-        'token_type': accessCredentials.accessToken.type,
-        'token_data': accessCredentials.accessToken.data,
-        'token_expiry': '${accessCredentials.accessToken.expiry}',
-        'refresh_token': '${accessCredentials.refreshToken}',
-        'scopes': scopes,
-      };
-      await param.setCredentialsMap(map);
+      await param.setCredentialsMap(
+        accessCredentialsToMap(accessCredentials, scopes),
+      );
     }
 
-    final authClient = auth.autoRefreshingClient(
+    final authClient = authClientFromCredentials(
       identifier,
       accessCredentials,
       client,
