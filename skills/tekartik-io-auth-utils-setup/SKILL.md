@@ -30,7 +30,6 @@ meant for developer tools and scripts, not for shipping to end users.
     tekartik_io_auth_utils:
       git:
         url: https://github.com/tekartik/io_auth_utils.dart
-      version: '>=0.3.0'
     googleapis: ">=1.2.0"
   ```
 * One public library: `package:tekartik_io_auth_utils/io_auth_utils.dart`,
@@ -39,8 +38,9 @@ meant for developer tools and scripts, not for shipping to end users.
   (`'access_credentials.yaml'`).
 * Normal use is a single call,
   `await initAuthClient(scopes: [userInfoProfileScope])`.
-  It returns a `package:http` `Client` (an `AutoRefreshingAuthClient`) valid
-  for those scopes. Hand it straight to a `googleapis` constructor
+  It returns a `package:http` `Client` valid for those scopes: an
+  `AutoRefreshingAuthClient`, or a plain authenticated client when the
+  cached credentials have no refresh token (a new login once expired). Hand it straight to a `googleapis` constructor
   (`Oauth2Api(client)`, `PeopleServiceApi(client)`, ...) and `close()` it when
   the tool ends.
 * Client id file: by default `.local/client_id.yaml`, overridable with
@@ -63,7 +63,9 @@ meant for developer tools and scripts, not for shipping to end users.
   `credentialsPath:`. It holds `token_type`, `token_data`, `token_expiry`,
   `refresh_token` and the `scopes` list (written as JSON, read back with
   `loadYaml`). Parent directories are created. Delete the file to force a new
-  login.
+  login. It is written with the default file mode (0664 with the usual 0002
+  umask, readable by the other accounts of the machine) and holds a refresh
+  token: `chmod 600` it on a shared machine.
 * Scopes are part of the cache: if the stored `scopes` set differs from the one
   you pass, the tool logs `scopes do not match` and re-runs the consent flow.
   Keep the scope list in one constant so every entry point asks for the same
@@ -77,7 +79,8 @@ meant for developer tools and scripts, not for shipping to end users.
 * When `userInfoProfileScope` is in the scopes, the cached credentials are
   probed with `Oauth2Api.userinfo.get()`; the user info JSON is printed and an
   `invalid_grant` answer transparently triggers a new login. Expect that
-  output on stdout.
+  output on stdout. Without that scope nothing is probed: a revoked refresh
+  token makes every API call fail until the cache file is deleted.
 * `verbose:` is accepted by `initAuthClient` but currently unused; do not rely
   on it for logging.
 * `AuthClientInfo` is the older compat API, still exported: `await
@@ -96,9 +99,12 @@ meant for developer tools and scripts, not for shipping to end users.
   implementation import (`// ignore: implementation_imports`) that may change;
   the file-based implementation `AuthCommonParamFile` and the `ioPromptUser`
   console prompt are in `src/io_auth_utils_file.dart`.
-* Testing: the only offline-testable parts are the client id parsing
-  (`AuthClientInfo.load`, `AuthClientInfoCommon.load`) with a fake
-  `AuthCommonParam`. Anything that calls `getClient` hits the network.
+* Testing: with a fake `AuthCommonParam`, the client id parsing
+  (`AuthClientInfo.load`, `AuthClientInfoCommon.load`) and a `getClient`
+  served by cached credentials (not expired, or with a refresh token, without
+  `userInfoProfileScope`) run offline (see
+  `test/io_auth_utils_credentials_test.dart`). A missing or unusable cache
+  starts the interactive consent flow.
 
 ## Examples
 

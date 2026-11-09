@@ -1,9 +1,8 @@
 // Copyright (c) 2017, alex. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
+/// Google OAuth for Dart command line tools ([initAuthClient]): a desktop
+/// client id read from a file, a console consent flow, tokens cached on disk.
 library;
 
 export 'src/io_auth_utils.dart' show initAuthClient;

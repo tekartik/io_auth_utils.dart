@@ -1,26 +1,29 @@
 // Copyright (c) 2017, alex. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
+/// [initAuthClient] implementation.
 library;
-
-// TODO: Export any libraries intended for clients of this package.
 
 import 'package:http/http.dart' as http;
 import 'package:tekartik_io_auth_utils/src/io_auth_utils_file.dart';
 import 'package:tekartik_io_auth_utils/src/io_auth_utils_memory.dart';
 import 'package:tekartik_io_utils/io_utils_import.dart';
 
-/// Load credentials from file system using default location (.local/client_id.yaml)
+/// An authenticated client for [scopes], asking the user consent on the
+/// console when there is no usable cached token.
 ///
-/// Content with the following form:
+/// The client id is [clientIdMap], else the file [clientIdPath] (default
+/// `.local/client_id.yaml`), of this form (or the JSON downloaded from the
+/// Google Cloud console):
 /// ```
 /// # Get the data from google cloud console, new Client ID for Desktop application
 /// client_id: 2**************************6.apps.googleusercontent.com
 /// client_secret: v************g
 /// ```
+///
+/// The tokens are cached in [credentialsPath] (default
+/// `.local/access_credentials.yaml`) with their scopes: another scope set
+/// starts a new consent. [verbose] is not used.
 Future<http.Client> initAuthClient({
   required List<String> scopes,
   String? clientIdPath,
